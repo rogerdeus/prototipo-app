@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Minha Vida Organizada</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#7c6cfc">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="MinhaVida">
+<link rel="apple-touch-icon" href="icons/icon-192x192.png">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0d0f;
+    --surface: #141417;
+    --card: #1a1a1f;
+    --border: #2a2a35;
+    --accent1: #7c6cfc;
+    --accent2: #fc6c8f;
+    --accent3: #6cfcb8;
+    --accent4: #fcb86c;
+    --text: #f0eff6;
+    --muted: #7a798a;
+    --radius: 16px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    top: -200px; left: -200px;
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(124,108,252,0.08) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  body::after {
+    content: '';
+    position: fixed;
+    bottom: -200px; right: -100px;
+    width: 500px; height: 500px;
+    background: radial-gradient(circle, rgba(252,108,143,0.06) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .app {
+    position: relative;
+    z-index: 1;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 32px 24px;
+  }
+
+  /* HEADER */
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 40px;
+    animation: fadeDown 0.6s ease both;
+  }
+
+  .header-left h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: 28px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+  }
+
+  .header-left h1 span { color: var(--accent1); }
+
+  .header-left p {
+    color: var(--muted);
+    font-size: 14px;
+    margin-top: 4px;
+  }
+
+  .date-badge {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    padding: 8px 18px;
+    font-size: 13px;
+    color: var(--muted);
+    font-weight: 500;
+  }
+
+  /* NAV TABS */
+  .tabs {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 32px;
+    background: var(--card);
+    padding: 6px;
+    border-radius: 100px;
+    width: fit-content;
+    animation: fadeDown 0.6s ease 0.1s both;
+  }
+
+  .tab {
+    padding: 8px 20px;
+    border-radius: 100px;
+    border: none;
+    background: transparent;
+    color: var(--muted);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .tab.active {
+    background: var(--accent1);
+    color: white;
+  }
+
+  .tab:hover:not(.active) { color: var(--text); }
+
+  /* PANELS */
+  .panel { display: none; }
+  .panel.active { display: block; animation: fadeUp 0.4s ease both; }
+
+  /* STATS ROW */
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+
+  .stat-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+  }
+
+  .stat-card.c1::before { background: var(--accent1); }
+  .stat-card.c2::before { background: var(--accent2); }
+  .stat-card.c3::before { background: var(--accent3); }
+
+  .stat-label {
+    font-size: 12px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 500;
+  }
+
+  .stat-value {
+    font-family: 'Syne', sans-serif;
+    font-size: 36px;
+    font-weight: 800;
+    margin: 6px 0 2px;
+  }
+
+  .stat-sub { font-size: 13px; color: var(--muted); }
+
+  .stat-card.c1 .stat-value { color: var(--accent1); }
+  .stat-card.c2 .stat-value { color: var(--accent2); }
+  .stat-card.c3 .stat-value { color: var(--accent3); }
+
+  /* SECTION */
+  .section-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .section-title .dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    display: inline-block;
+  }
+
+  /* ADD FORM */
+  .add-form {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+
+  .add-form input, .add-form select {
+    background: var(--card);
+    border: 1px solid var(--border);
+    color: var(--text);
+    border-radius: 100px;
+    padding: 10px 18px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    flex: 1;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .add-form input:focus { border-color: var(--accent1); }
+  .add-form select option { background: var(--card); }
+
+  .btn-add {
+    background: var(--accent1);
+    color: white;
+    border: none;
+    border-radius: 100px;
+    padding: 10px 22px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.2s, transform 0.1s;
+    white-space: nowrap;
+  }
+
+  .btn-add:hover { opacity: 0.85; }
+  .btn-add:active { transform: scale(0.97); }
+
+  /* ITEMS LIST */
+  .items-list { display: flex; flex-direction: column; gap: 10px; }
+
+  .item {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 18px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    transition: border-color 0.2s, transform 0.15s;
+    animation: fadeUp 0.3s ease both;
+  }
+
+  .item:hover { border-color: #3a3a48; transform: translateX(2px); }
+
+  .item.done { opacity: 0.4; }
+  .item.done .item-text { text-decoration: line-through; }
+
+  .checkbox {
+    width: 20px; height: 20px;
+    border-radius: 6px;
+    border: 2px solid var(--border);
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    transition: all 0.2s;
+  }
+
+  .checkbox.checked { background: var(--accent3); border-color: var(--accent3); }
+  .checkbox.checked::after { content: '✓'; color: #0d0d0f; font-size: 12px; font-weight: 700; }
+
+  .item-text { flex: 1; font-size: 14px; }
+
+  .item-tag {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 100px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .tag-alta { background: rgba(252,108,143,0.15); color: var(--accent2); }
+  .tag-media { background: rgba(252,184,108,0.15); color: var(--accent4); }
+  .tag-baixa { background: rgba(108,252,184,0.15); color: var(--accent3); }
+
+  .item-delete {
+    color: var(--muted);
+    cursor: pointer;
+    font-size: 16px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    transition: color 0.2s;
+  }
+
+  .item-delete:hover { color: var(--accent2); }
+
+  /* TWO COLS */
+  .two-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+
+  /* PROGRESS BAR */
+  .progress-wrap { margin-bottom: 20px; }
+  .progress-label { display: flex; justify-content: space-between; font-size: 13px; color: var(--muted); margin-bottom: 8px; }
+  .progress-bar { height: 6px; background: var(--border); border-radius: 100px; overflow: hidden; }
+  .progress-fill { height: 100%; border-radius: 100px; transition: width 0.5s ease; }
+
+  /* ROTINA */
+  .rotina-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 12px;
+  }
+
+  .rotina-slot {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .rotina-slot.done { border-color: var(--accent3); }
+  .rotina-slot.done::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: var(--accent3); }
+
+  .rotina-slot:hover { border-color: #3a3a48; }
+
+  .slot-time { font-size: 11px; color: var(--muted); font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; }
+  .slot-name { font-size: 14px; font-weight: 500; margin-top: 4px; }
+  .slot-check { position: absolute; top: 14px; right: 14px; font-size: 16px; opacity: 0; transition: opacity 0.2s; }
+  .rotina-slot.done .slot-check { opacity: 1; }
+
+  .btn-gcal {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    margin-top: 10px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    border-radius: 100px;
+    padding: 5px 12px;
+    font-size: 11px;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+  .btn-gcal:hover { background: rgba(66,133,244,0.12); border-color: #4285f4; color: #4285f4; }
+
+  .btn-gcal {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    margin-top: 10px;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    border-radius: 100px;
+    padding: 4px 12px;
+    font-size: 11px;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-decoration: none;
+  }
+  .btn-gcal:hover { background: rgba(66,133,244,0.15); border-color: #4285f4; color: #4285f4; }
+  .btn-gcal svg { width: 12px; height: 12px; }
+
+  /* ESTUDO */
+  .materia-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px;
+  }
+
+  .materia-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+  .materia-name { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 15px; }
+  .materia-pct { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 22px; }
+
+  /* EMPTY STATE */
+  .empty {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--muted);
+    font-size: 14px;
+  }
+
+  .empty-icon { font-size: 32px; margin-bottom: 10px; }
+
+  /* ANIMATIONS */
+  @keyframes fadeDown {
+    from { opacity: 0; transform: translateY(-16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* RESPONSIVE */
+  @media (max-width: 640px) {
+    .stats { grid-template-columns: 1fr; }
+    .two-cols { grid-template-columns: 1fr; }
+    .add-form { flex-wrap: wrap; }
+    .add-form input, .add-form select { border-radius: 10px; }
+    .btn-add { border-radius: 10px; width: 100%; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <header>
+    <div class="header-left">
+      <h1>minha <span>vida</span> organizada</h1>
+      <p>projetos · estudos · rotina</p>
+    </div>
+    <div class="date-badge" id="date-badge">—</div>
+  </header>
+
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('projetos')">🚀 Projetos</button>
+    <button class="tab" onclick="switchTab('estudos')">📚 Estudos</button>
+    <button class="tab" onclick="switchTab('rotina')">⏰ Rotina</button>
+  </div>
+
+  <!-- ===== PROJETOS ===== -->
+  <div class="panel active" id="panel-projetos">
+    <div class="stats">
+      <div class="stat-card c1">
+        <div class="stat-label">Ativos</div>
+        <div class="stat-value" id="proj-ativos">0</div>
+        <div class="stat-sub">projetos em andamento</div>
+      </div>
+      <div class="stat-card c2">
+        <div class="stat-label">Tarefas hoje</div>
+        <div class="stat-value" id="proj-tarefas">0</div>
+        <div class="stat-sub">pendentes</div>
+      </div>
+      <div class="stat-card c3">
+        <div class="stat-label">Concluídas</div>
+        <div class="stat-value" id="proj-done">0</div>
+        <div class="stat-sub">tarefas feitas</div>
+      </div>
+    </div>
+
+    <div class="section-title"><span class="dot" style="background:var(--accent1)"></span> Projetos</div>
+    <div class="add-form">
+      <input id="proj-input" type="text" placeholder="Nome do projeto...">
+      <button class="btn-add" onclick="addProjeto()">+ Projeto</button>
+    </div>
+    <div class="items-list" id="projetos-list"></div>
+
+    <div style="margin-top: 28px;">
+      <div class="section-title"><span class="dot" style="background:var(--accent2)"></span> Tarefas</div>
+      <div class="add-form">
+        <input id="tarefa-input" type="text" placeholder="Nova tarefa...">
+        <select id="tarefa-prioridade">
+          <option value="alta">🔴 Alta</option>
+          <option value="media" selected>🟡 Média</option>
+          <option value="baixa">🟢 Baixa</option>
+        </select>
+        <button class="btn-add" onclick="addTarefa()">+ Tarefa</button>
+      </div>
+      <div class="items-list" id="tarefas-list"></div>
+    </div>
+  </div>
+
+  <!-- ===== ESTUDOS ===== -->
+  <div class="panel" id="panel-estudos">
+    <div class="stats">
+      <div class="stat-card c1">
+        <div class="stat-label">Matérias</div>
+        <div class="stat-value" id="est-materias">0</div>
+        <div class="stat-sub">sendo estudadas</div>
+      </div>
+      <div class="stat-card c2">
+        <div class="stat-label">Horas esta semana</div>
+        <div class="stat-value" id="est-horas">0h</div>
+        <div class="stat-sub">registradas</div>
+      </div>
+      <div class="stat-card c3">
+        <div class="stat-label">Meta semanal</div>
+        <div class="stat-value" id="est-meta-pct">0%</div>
+        <div class="stat-sub">concluída</div>
+      </div>
+    </div>
+
+    <div class="add-form">
+      <input id="materia-input" type="text" placeholder="Nome da matéria / curso...">
+      <input id="materia-meta" type="number" placeholder="Meta (h/semana)" min="1" max="40" style="max-width:180px">
+      <button class="btn-add" onclick="addMateria()">+ Matéria</button>
+    </div>
+
+    <div id="materias-container"></div>
+  </div>
+
+  <!-- ===== ROTINA ===== -->
+  <div class="panel" id="panel-rotina">
+    <div style="margin-bottom: 24px;">
+      <div class="section-title"><span class="dot" style="background:var(--accent4)"></span> Progresso do dia</div>
+      <div class="progress-wrap">
+        <div class="progress-label"><span>Hábitos concluídos</span><span id="rotina-pct">0%</span></div>
+        <div class="progress-bar"><div class="progress-fill" id="rotina-bar" style="width:0%;background:var(--accent3)"></div></div>
+      </div>
+    </div>
+
+    <div class="section-title"><span class="dot" style="background:var(--accent1)"></span> Hábitos diários</div>
+    <div class="add-form">
+      <input id="habito-input" type="text" placeholder="Ex: Ler 30min, Exercício...">
+      <input id="habito-hora" type="text" placeholder="Horário (ex: 07:00)">
+      <button class="btn-add" onclick="addHabito()">+ Hábito</button>
+    </div>
+    <div class="rotina-grid" id="rotina-grid"></div>
+  </div>
+
+</div>
+
+<script>
+// ===== STATE =====
+let state = JSON.parse(localStorage.getItem('minha-vida') || '{}');
+if (!state.projetos) state.projetos = [];
+if (!state.tarefas) state.tarefas = [];
+if (!state.materias) state.materias = [];
+if (!state.habitos) state.habitos = [];
+if (!state.habitosDone) state.habitosDone = {};
+if (!state.horasEstudo) state.horasEstudo = {};
+
+function save() { localStorage.setItem('minha-vida', JSON.stringify(state)); }
+
+// ===== DATE =====
+const dias = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
+const meses = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+const now = new Date();
+const today = `${now.getFullYear()}-${now.getMonth()}-${now.getDate()}`;
+document.getElementById('date-badge').textContent =
+  `${dias[now.getDay()]}, ${now.getDate()} ${meses[now.getMonth()]} ${now.getFullYear()}`;
+
+// ===== TABS =====
+function switchTab(tab) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  event.target.classList.add('active');
+  document.getElementById('panel-' + tab).classList.add('active');
+}
+
+// ===== PROJETOS =====
+function addProjeto() {
+  const val = document.getElementById('proj-input').value.trim();
+  if (!val) return;
+  state.projetos.push({ id: Date.now(), nome: val });
+  document.getElementById('proj-input').value = '';
+  save(); renderProjetos();
+}
+
+function deleteProjeto(id) {
+  state.projetos = state.projetos.filter(p => p.id !== id);
+  save(); renderProjetos();
+}
+
+function renderProjetos() {
+  const list = document.getElementById('projetos-list');
+  if (!state.projetos.length) {
+    list.innerHTML = '<div class="empty"><div class="empty-icon">🚀</div>Nenhum projeto ainda. Adicione o seu primeiro!</div>';
+  } else {
+    list.innerHTML = state.projetos.map(p => `
+      <div class="item" id="proj-${p.id}">
+        <div style="width:10px;height:10px;border-radius:50%;background:var(--accent1);flex-shrink:0"></div>
+        <div class="item-text">${p.nome}</div>
+        <span class="item-delete" onclick="deleteProjeto(${p.id})">✕</span>
+      </div>`).join('');
+  }
+  document.getElementById('proj-ativos').textContent = state.projetos.length;
+  renderStats();
+}
+
+// ===== TAREFAS =====
+function addTarefa() {
+  const val = document.getElementById('tarefa-input').value.trim();
+  const prio = document.getElementById('tarefa-prioridade').value;
+  if (!val) return;
+  state.tarefas.push({ id: Date.now(), nome: val, prioridade: prio, done: false });
+  document.getElementById('tarefa-input').value = '';
+  save(); renderTarefas();
+}
+
+function toggleTarefa(id) {
+  const t = state.tarefas.find(t => t.id === id);
+  if (t) { t.done = !t.done; save(); renderTarefas(); }
+}
+
+function deleteTarefa(id) {
+  state.tarefas = state.tarefas.filter(t => t.id !== id);
+  save(); renderTarefas();
+}
+
+function renderTarefas() {
+  const list = document.getElementById('tarefas-list');
+  const sorted = [...state.tarefas].sort((a,b) => {
+    const order = {alta:0,media:1,baixa:2};
+    return order[a.prioridade] - order[b.prioridade];
+  });
+  if (!sorted.length) {
+    list.innerHTML = '<div class="empty"><div class="empty-icon">✅</div>Nenhuma tarefa. Que organizado!</div>';
+  } else {
+    list.innerHTML = sorted.map(t => `
+      <div class="item ${t.done?'done':''}">
+        <div class="checkbox ${t.done?'checked':''}" onclick="toggleTarefa(${t.id})"></div>
+        <div class="item-text">${t.nome}</div>
+        <span class="item-tag tag-${t.prioridade}">${t.prioridade}</span>
+        <span class="item-delete" onclick="deleteTarefa(${t.id})">✕</span>
+      </div>`).join('');
+  }
+  renderStats();
+}
+
+function renderStats() {
+  const pendentes = state.tarefas.filter(t => !t.done).length;
+  const done = state.tarefas.filter(t => t.done).length;
+  document.getElementById('proj-tarefas').textContent = pendentes;
+  document.getElementById('proj-done').textContent = done;
+}
+
+// ===== ESTUDOS =====
+function addMateria() {
+  const nome = document.getElementById('materia-input').value.trim();
+  const meta = parseInt(document.getElementById('materia-meta').value) || 5;
+  if (!nome) return;
+  state.materias.push({ id: Date.now(), nome, meta, horas: 0 });
+  document.getElementById('materia-input').value = '';
+  document.getElementById('materia-meta').value = '';
+  save(); renderMaterias();
+}
+
+function addHora(id, delta) {
+  const m = state.materias.find(m => m.id === id);
+  if (m) { m.horas = Math.max(0, m.horas + delta); save(); renderMaterias(); }
+}
+
+function deleteMateria(id) {
+  state.materias = state.materias.filter(m => m.id !== id);
+  save(); renderMaterias();
+}
+
+function renderMaterias() {
+  const container = document.getElementById('materias-container');
+  const colors = [
+    'var(--accent1)', 'var(--accent2)', 'var(--accent3)', 'var(--accent4)'
+  ];
+
+  if (!state.materias.length) {
+    container.innerHTML = '<div class="empty"><div class="empty-icon">📚</div>Adicione uma matéria para começar a estudar!</div>';
+  } else {
+    container.innerHTML = `<div class="two-cols">` + state.materias.map((m, i) => {
+      const pct = Math.min(100, Math.round((m.horas / m.meta) * 100));
+      const cor = colors[i % colors.length];
+      return `
+        <div class="materia-card">
+          <div class="materia-header">
+            <div class="materia-name">${m.nome}</div>
+            <div class="materia-pct" style="color:${cor}">${pct}%</div>
+          </div>
+          <div class="progress-wrap">
+            <div class="progress-label">
+              <span>${m.horas}h estudadas</span>
+              <span>meta: ${m.meta}h/sem</span>
+            </div>
+            <div class="progress-bar">
+              <div class="progress-fill" style="width:${pct}%;background:${cor}"></div>
+            </div>
+          </div>
+          <div style="display:flex;gap:8px;margin-top:14px;align-items:center">
+            <button onclick="addHora(${m.id},-1)" style="background:var(--border);border:none;color:var(--text);border-radius:8px;padding:6px 14px;cursor:pointer;font-size:16px">−</button>
+            <span style="font-size:13px;color:var(--muted);flex:1;text-align:center">registrar horas</span>
+            <button onclick="addHora(${m.id},1)" style="background:${cor};border:none;color:#0d0d0f;border-radius:8px;padding:6px 14px;cursor:pointer;font-size:16px;font-weight:700">+</button>
+            <span class="item-delete" onclick="deleteMateria(${m.id})" style="margin-left:4px">✕</span>
+          </div>
+          <button class="btn-gcal" onclick="exportMateriaGcal(${m.id})" style="margin-top:12px;width:100%;justify-content:center">
+            <svg viewBox="0 0 18 18" fill="currentColor" width="11" height="11"><path d="M14 2h-1V0h-2v2H7V0H5v2H4C2.9 2 2 2.9 2 4v12c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H4V7h10v9zM6 9h4v4H6z"/></svg>
+            Agendar sessão no Google Calendar
+          </button>
+        </div>`;
+    }).join('') + `</div>`;
+  }
+
+  const totalHoras = state.materias.reduce((s,m) => s + m.horas, 0);
+  const totalMeta = state.materias.reduce((s,m) => s + m.meta, 0);
+  const metaPct = totalMeta ? Math.round((totalHoras/totalMeta)*100) : 0;
+
+  document.getElementById('est-materias').textContent = state.materias.length;
+  document.getElementById('est-horas').textContent = totalHoras + 'h';
+  document.getElementById('est-meta-pct').textContent = Math.min(100, metaPct) + '%';
+}
+
+// ===== GOOGLE CALENDAR =====
+function gcalUrl({ title, date, startTime, details }) {
+  const d = date || new Date();
+  const pad = n => String(n).padStart(2,'0');
+  const dateStr = `${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}`;
+  let dates;
+  if (startTime && startTime !== '—' && /\d+:\d+/.test(startTime)) {
+    const [h, m] = startTime.split(':').map(Number);
+    const endH = (h + 1) % 24;
+    dates = `${dateStr}T${pad(h)}${pad(m||0)}00/${dateStr}T${pad(endH)}${pad(m||0)}00`;
+  } else {
+    dates = `${dateStr}/${dateStr}`;
+  }
+  const params = new URLSearchParams({
+    action: 'TEMPLATE', text: title, dates,
+    details: details || '', recur: 'RRULE:FREQ=DAILY'
+  });
+  return `https://calendar.google.com/calendar/render?${params.toString()}`;
+}
+
+function exportHabitoGcal(id) {
+  const h = state.habitos.find(h => h.id === id);
+  if (!h) return;
+  window.open(gcalUrl({ title: `🔔 ${h.nome}`, date: new Date(), startTime: h.hora, details: 'Hábito diário — Minha Vida Organizada' }), '_blank');
+}
+
+function exportMateriaGcal(id) {
+  const m = state.materias.find(m => m.id === id);
+  if (!m) return;
+  window.open(gcalUrl({ title: `📚 Estudar: ${m.nome}`, date: new Date(), details: `Sessão de estudo — meta: ${m.meta}h/semana` }), '_blank');
+}
+
+// ===== ROTINA =====
+function addHabito() {
+  const nome = document.getElementById('habito-input').value.trim();
+  const hora = document.getElementById('habito-hora').value.trim() || '—';
+  if (!nome) return;
+  state.habitos.push({ id: Date.now(), nome, hora });
+  document.getElementById('habito-input').value = '';
+  document.getElementById('habito-hora').value = '';
+  save(); renderRotina();
+}
+
+function toggleHabito(id) {
+  const key = `${today}-${id}`;
+  state.habitosDone[key] = !state.habitosDone[key];
+  save(); renderRotina();
+}
+
+function deleteHabito(id) {
+  state.habitos = state.habitos.filter(h => h.id !== id);
+  save(); renderRotina();
+}
+
+function renderRotina() {
+  const grid = document.getElementById('rotina-grid');
+
+  if (!state.habitos.length) {
+    grid.innerHTML = '<div class="empty" style="grid-column:1/-1"><div class="empty-icon">⏰</div>Adicione hábitos para sua rotina diária!</div>';
+    document.getElementById('rotina-pct').textContent = '0%';
+    document.getElementById('rotina-bar').style.width = '0%';
+    return;
+  }
+
+  let done = 0;
+  grid.innerHTML = state.habitos.map(h => {
+    const key = `${today}-${h.id}`;
+    const isDone = !!state.habitosDone[key];
+    if (isDone) done++;
+    return `
+      <div class="rotina-slot ${isDone?'done':''}" onclick="toggleHabito(${h.id})">
+        <div class="slot-time">${h.hora}</div>
+        <div class="slot-name">${h.nome}</div>
+        <div class="slot-check">✓</div>
+        <button class="btn-gcal" onclick="event.stopPropagation();exportHabitoGcal(${h.id})">
+          <svg viewBox="0 0 18 18" fill="currentColor" width="11" height="11"><path d="M14 2h-1V0h-2v2H7V0H5v2H4C2.9 2 2 2.9 2 4v12c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H4V7h10v9zM6 9h4v4H6z"/></svg>
+          Google Calendar
+        </button>
+        <span onclick="event.stopPropagation();deleteHabito(${h.id})" 
+              style="position:absolute;top:12px;right:12px;font-size:12px;color:var(--muted);cursor:pointer">✕</span>
+      </div>`;
+  }).join('');
+
+  const pct = Math.round((done / state.habitos.length) * 100);
+  document.getElementById('rotina-pct').textContent = pct + '%';
+  document.getElementById('rotina-bar').style.width = pct + '%';
+}
+
+// ===== INIT =====
+function init() {
+  renderProjetos();
+  renderTarefas();
+  renderMaterias();
+  renderRotina();
+}
+
+// Enter key support
+document.getElementById('proj-input').addEventListener('keydown', e => e.key==='Enter' && addProjeto());
+document.getElementById('tarefa-input').addEventListener('keydown', e => e.key==='Enter' && addTarefa());
+document.getElementById('materia-input').addEventListener('keydown', e => e.key==='Enter' && addMateria());
+document.getElementById('habito-input').addEventListener('keydown', e => e.key==='Enter' && addHabito());
+
+init();
+
+// ===== SERVICE WORKER =====
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js')
+      .then(() => console.log('SW registrado'))
+      .catch(e => console.log('SW erro:', e));
+  });
+}
+</script>
+</body>
+</html>
